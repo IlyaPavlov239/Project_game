@@ -1,5 +1,6 @@
 import pygame
 import sys
+import subprocess
 
 # Инициализация Pygame
 pygame.init()
@@ -68,7 +69,7 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if button_rect.collidepoint(event.pos):  # Проверка нажатия на кнопку "Start"
-                show_image()  # Открытие окна с изображением при нажатии кнопки
+                subprocess.Popen(["python", "main.py"])
             if exit_button_rect.collidepoint(event.pos):  # Проверка нажатия на кнопку выхода
                 running = False  # Выход из игры
 
