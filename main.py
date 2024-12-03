@@ -6,6 +6,7 @@ def game():
     # Настройка экрана (полноэкранный режим)
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     width, height = screen.get_size()
+    pygame.display.set_caption("Name of game")
 
     # Загрузка изображения фона
     background_image = pygame.image.load('images/background.png')  # Путь к вашему изображению
