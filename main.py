@@ -1,5 +1,7 @@
 def game():
     import pygame
+    from buildings import construction
+
     # Инициализация Pygame
     pygame.init()
 
@@ -7,6 +9,9 @@ def game():
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     width, height = screen.get_size()
     pygame.display.set_caption("Name of game")
+
+    road1 = construction("двухполосная дорога", 1500, 2, 100, 'images/road1.png')
+    road1.build((0,0),screen)
 
     # Загрузка изображения фона
     background_image = pygame.image.load('images/background.png')  # Путь к вашему изображению
@@ -57,5 +62,5 @@ def game():
         pygame.display.flip()
 
     # Завершение работы
-    pygame.quit()
-    sys.exit()
+    # pygame.quit()
+    # sys.exit()
