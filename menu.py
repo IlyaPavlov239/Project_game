@@ -1,7 +1,7 @@
 import pygame
 import sys
 import main
-
+import buildings
 
 # Инициализация Pygame
 pygame.init()
@@ -52,9 +52,12 @@ def show_image():
     # Закрытие окна
     pygame.display.quit()
 
+default = buildings.construction("гравийная дорога", "300", 1, "10", 'images/road1.png')
+
 # Основной цикл
 running = True
 while running:
+
     screen.fill((0, 0, 0))  # Черный фон
     screen.blit(background_image, (0, 0))  # Фоновое изображение
 
