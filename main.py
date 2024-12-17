@@ -10,8 +10,7 @@ def game():
     width, height = screen.get_size()
     pygame.display.set_caption("Name of game")
 
-    road1 = construction("двухполосная дорога", 1500, 2, 100, 'images/road1.png')
-    road1.build((0,0),screen)
+
 
     # Загрузка изображения фона
     background_image = pygame.image.load('images/background.png')  # Путь к вашему изображению
@@ -24,9 +23,17 @@ def game():
     dragging = False
     last_x, last_y = 0, 0  # Последняя позиция мыши, чтобы отслеживать движение
 
+
+    road1 = construction("двухполосная дорога", 1500, 2, 100, 'images/road1.png')
+
+
+
     # Основной цикл программы
     running=True
     while running:
+
+        road1.build((0,0),screen)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
