@@ -1,6 +1,6 @@
 import pygame
 import sys
-import main
+import new
 import buildings
 
 # Инициализация Pygame
@@ -73,7 +73,7 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if button_rect.collidepoint(event.pos):
-                main.game()
+                new.game()
 
             if exit_button_rect.collidepoint(event.pos):  # Проверка нажатия на кнопку выхода
                 running = False  # Выход из игры
