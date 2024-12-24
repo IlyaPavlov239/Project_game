@@ -5,10 +5,14 @@ import buildings
 
 # Инициализация Pygame
 pygame.init()
+pygame.mixer.init()
 
 # Разрешение экрана (будет полноэкранным)
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 width, height = screen.get_size()
+
+pygame.mixer.music.load('music/Каламбур - Деревня дураков.mp3')
+pygame.mixer.music.play(-1)
 
 # Загрузка изображений
 background_image = pygame.image.load('images/background.png')  # Путь к фоновому изображению
@@ -83,4 +87,5 @@ while running:
 
 # Завершение работы
 pygame.quit()
+pygame.mixer.quit()
 sys.exit()
