@@ -129,37 +129,37 @@ class Car:
                     elif self.turn == "forward":
                         self.rect.x -= 2
         elif self.orientation == "vertical":
-            if self.direction == 1:
+            if self.direction == 1: #вниз
                 if self.rect.y < self.pov_y:
                     self.rect.y += 2
                 else:
                     if self.turn == "left":
-                        if self.angle < 90:
-                            self.angle += 2
+                        if self.angle > -90:
+                            self.angle -= 2
                             self.rect.x -= 2
                         else:
                             self.rect.x -= 2
                     elif self.turn == "right":
-                        if self.angle > -90:
-                            self.angle -= 2
+                        if self.angle < 90:
+                            self.angle += 2
                             self.rect.x += 2
                         else:
                             self.rect.x += 2
                     elif self.turn == "forward":
                         self.rect.y += 2
-            elif self.direction == -1:
+            elif self.direction == -1: #вверх
                 if self.rect.y > self.pov_y:
                     self.rect.y -= 2
                 else:
                     if self.turn == "left":
-                        if self.angle > -90:
-                            self.angle -= 2
+                        if self.angle < 90:
+                            self.angle += 2
                             self.rect.x -= 2
                         else:
                             self.rect.x -= 2
                     elif self.turn == "right":
-                        if self.angle < 90:
-                            self.angle += 2
+                        if self.angle > -90:
+                            self.angle -= 2
                             self.rect.x += 2
                         else:
                             self.rect.x += 2
