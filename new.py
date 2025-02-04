@@ -27,32 +27,42 @@ pygame.mixer.music.load('music/OMFG - Hello.mp3')
 pygame.mixer.music.play(-1)
 
 # Состояния светофоров
-sw1 = True
-sw2 = True
-sw3 = True
-sw4 = True
+sw = [True, True, True, True]
+s = [pygame.Rect(900, HEIGHT / 2 - 10, 20, 70), pygame.Rect(WIDTH - 900 + 25, HEIGHT / 2 - 10, 20, 70), pygame.Rect(WIDTH / 2 - 10, 480, 70, 20), pygame.Rect(WIDTH / 2 - 10, HEIGHT - 455, 70, 20)]
 
-# Светофоры
-s1 = pygame.Rect(900, HEIGHT / 2 - 10, 20, 70)
-s2 = pygame.Rect(WIDTH - 900 + 25, HEIGHT / 2 - 10, 20, 70)
-s3 = pygame.Rect(WIDTH / 2 - 10, 480, 70, 20)
-s4 = pygame.Rect(WIDTH / 2 - 10, HEIGHT - 455, 70, 20)
 
 def is_near(cars):
+    for i in cars:
+        i.go()
+    for i in range(len(cars)):
+        if not (cars[i].rect.center[0]<1035 and cars[i].rect.center[0]>935 and cars[i].rect.center[1]>515 and cars[i].rect.center[1]<615):
+            for k in range(len(cars)):
+                if k!=i and cars[i].orientation == cars[k].orientation and cars[i].direction == cars[k].direction:
+                    if cars[i].orientation=="horizontal":
+                        if cars[i].rect.center[0] - cars[k].rect.center[0] < cars[i].direction * (100):
+                            cars[k].stop()
+                            break
+                    if cars[i].orientation == "vertical":
+                        if cars[i].rect.center[1] - cars[k].rect.center[1] < cars[i].direction * (100):
+                            cars[k].stop()
+                            break
 
-        for i in range(len(cars)):
-            if not (cars[i].rect.center[0]<1035 and cars[i].rect.center[0]>935 and cars[i].rect.center[1]>515 and cars[i].rect.center[1]<615):
-                for k in range(len(cars)):
-                    if k!=i and cars[i].orientation == cars[k].orientation and cars[i].direction == cars[k].direction:
-                            if cars[i].orientation=="horizontal":
-                                if cars[i].rect.center[0] == cars[k].rect.center[0] + cars[i].direction * (25):
-                                    cars[k].stop()
-                                    break
-                            if cars[i].orientation == "vertical":
-                                if cars[i].rect.center[1] == cars[k].rect.center[1] + cars[i].direction * (25):
-                                    cars[k].stop()
-                                    break
-
+def is_red(cars):
+    for i in cars:
+        if i.orientation == "horizontal":
+            if  i.rect.center[0] > s[0].center[0] - 5 and i.rect.center[0]<s[0].center[0] and i.direction==1 and not sw[0]:
+                i.stop()
+            elif  i.rect.center[0] < s[1].center[0] + 5 and i.rect.center[0]>s[1].center[0] and i.direction==-1 and not sw[1]:
+                i.stop()
+            else:
+                i.go()
+        else:
+            if i.rect.center[1] > s[2].center[1] - 5 and i.rect.center[1]<s[2].center[1] and i.direction==1 and not sw[2]:
+                i.stop()
+            elif  i.rect.center[1] < s[3].center[1] + 5 and i.rect.center[1]>s[3].center[1] and i.direction==-1 and not sw[3]:
+                i.stop()
+            else:
+                i.go()
 
 # Класс машины (универсальный)
 
@@ -200,6 +210,10 @@ class Car:
         """Останавливает машину при вызове."""
         self.stopped = True
 
+    def go(self):
+        """Останавливает машину при вызове."""
+        self.stopped = False
+
 
 # Основной игровой цикл
 running = True
@@ -232,15 +246,9 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             print(pygame.mouse.get_pos())
             if event.button == 1:  # Левая кнопка мыши
-                if s1.collidepoint(event.pos):
-                    sw1 = not sw1
-                if s2.collidepoint(event.pos):
-                    sw2 = not sw2
-                if s3.collidepoint(event.pos):
-                    sw3 = not sw3
-                if s4.collidepoint(event.pos):
-                    sw4 = not sw4
-
+                for i in range(len(s)):
+                    if s[i].collidepoint(event.pos):
+                        sw[i] = not sw[i]
     # Заполнение фона
     screen.fill(WHITE)
 
@@ -249,10 +257,8 @@ while running:
     pygame.draw.rect(screen, GRAY, (WIDTH / 2 - 25, 0, 100, HEIGHT))
 
     # Рисуем светофоры
-    pygame.draw.rect(screen, GREEN if sw1 else RED, s1)
-    pygame.draw.rect(screen, GREEN if sw2 else RED, s2)
-    pygame.draw.rect(screen, GREEN if sw3 else RED, s3)
-    pygame.draw.rect(screen, GREEN if sw4 else RED, s4)
+    for i in range(len(s)):
+        pygame.draw.rect(screen, GREEN if sw[i] else RED, s[i])
 
     # Движение машин
     for car in cars[:]:
@@ -265,7 +271,7 @@ while running:
 
     if cars != []:
         is_near(cars)
-
+        is_red(cars)
     # Обновляем экран
     pygame.display.flip()
     clock.tick(FPS)
