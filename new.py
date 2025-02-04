@@ -18,6 +18,9 @@ GRAY = (128, 128, 128)
 RED = (255, 0, 0)
 GREEN = (10, 247, 49)
 
+game_over_image = pygame.image.load('images/game_over.jpg')
+game_over_image_rect = game_over_image.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+
 # Настройка окна
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Дороги и Машины")
@@ -33,36 +36,30 @@ s = [pygame.Rect(900, HEIGHT / 2 - 10, 20, 70), pygame.Rect(WIDTH - 900 + 25, HE
 
 def is_near(cars):
     for i in cars:
-        i.go()
-    for i in range(len(cars)):
-        if not (cars[i].rect.center[0]<1035 and cars[i].rect.center[0]>935 and cars[i].rect.center[1]>515 and cars[i].rect.center[1]<615):
-            for k in range(len(cars)):
-                if k!=i and cars[i].orientation == cars[k].orientation and cars[i].direction == cars[k].direction:
-                    if cars[i].orientation=="horizontal":
-                        if cars[i].rect.center[0] - cars[k].rect.center[0] < cars[i].direction * (100):
-                            cars[k].stop()
-                            break
-                    if cars[i].orientation == "vertical":
-                        if cars[i].rect.center[1] - cars[k].rect.center[1] < cars[i].direction * (100):
-                            cars[k].stop()
-                            break
+        #if i.stopped == False:
+            for k in cars:
+                if not (i.rect.center[0]<1035 and i.rect.center[0]>935 and i.rect.center[1]>515 and i.rect.center[1]<615) and i.direction==k.direction and i.orientation==k.orientation and i!=k:
+                    if i.orientation=="horizontal" and ((i.direction==1 and i.rect.center[0]>k.rect.center[0] and i.rect.center[0]<935) or (i.direction==-1 and i.rect.center[0]<k.rect.center[0] and i.rect.center[0]>1035)) and abs(i.rect.center[0]-k.rect.center[0])<70:
+                        k.stop()
+                    if i.orientation=="vertical" and ((i.direction==1 and i.rect.center[1]>k.rect.center[1] and i.rect.center[1]<515) or (i.direction==-1 and i.rect.center[1]<k.rect.center[1] and i.rect.center[1]>615)) and abs(i.rect.center[1]-k.rect.center[1])<70:
+                        k.stop()
 
 def is_red(cars):
+    for j in cars:
+        j.go()
     for i in cars:
         if i.orientation == "horizontal":
             if  i.rect.center[0] > s[0].center[0] - 5 and i.rect.center[0]<s[0].center[0] and i.direction==1 and not sw[0]:
                 i.stop()
             elif  i.rect.center[0] < s[1].center[0] + 5 and i.rect.center[0]>s[1].center[0] and i.direction==-1 and not sw[1]:
                 i.stop()
-            else:
-                i.go()
+
         else:
             if i.rect.center[1] > s[2].center[1] - 5 and i.rect.center[1]<s[2].center[1] and i.direction==1 and not sw[2]:
                 i.stop()
             elif  i.rect.center[1] < s[3].center[1] + 5 and i.rect.center[1]>s[3].center[1] and i.direction==-1 and not sw[3]:
                 i.stop()
-            else:
-                i.go()
+
 
 # Класс машины (универсальный)
 
@@ -270,8 +267,14 @@ while running:
         car.draw(screen)
 
     if cars != []:
-        is_near(cars)
         is_red(cars)
+        is_near(cars)
+
+    # for m in cars:
+    #     for j in cars:
+    #         if j.rect.colliderect(m.rect):
+    #             screen.blit(game_over_image, game_over_image_rect)
+
     # Обновляем экран
     pygame.display.flip()
     clock.tick(FPS)
