@@ -38,9 +38,23 @@ s2 = pygame.Rect(WIDTH - 900 + 25, HEIGHT / 2 - 10, 20, 70)
 s3 = pygame.Rect(WIDTH / 2 - 10, 480, 70, 20)
 s4 = pygame.Rect(WIDTH / 2 - 10, HEIGHT - 455, 70, 20)
 
+def is_near(cars):
+
+        for i in range(len(cars)):
+            if not (cars[i].rect.center[0]<1035 and cars[i].rect.center[0]>935 and cars[i].rect.center[1]>515 and cars[i].rect.center[1]<615):
+                for k in range(len(cars)):
+                    if k!=i and cars[i].orientation == cars[k].orientation and cars[i].direction == cars[k].direction:
+                            if cars[i].orientation=="horizontal":
+                                if cars[i].rect.center[0] == cars[k].rect.center[0] + cars[i].direction * (25):
+                                    cars[k].stop()
+                                    break
+                            if cars[i].orientation == "vertical":
+                                if cars[i].rect.center[1] == cars[k].rect.center[1] + cars[i].direction * (25):
+                                    cars[k].stop()
+                                    break
+
 
 # Класс машины (универсальный)
-import pygame
 
 class Car:
     def __init__(self, direction, turn, orientation):
@@ -87,10 +101,17 @@ class Car:
         self.original_surface.fill((0, 0, 0))
         self.surface = self.original_surface
 
+        # Флаг для остановки машины
+        self.stopped = False
+
     def pos(self):
         return self.rect.topleft
 
     def move(self):
+        # Если машина остановлена, ничего не делаем
+        if self.stopped:
+            return True
+
         if self.orientation == "horizontal":  # Движение по горизонтали
             if self.direction == 1:  # Движение вправо
                 if self.rect.x < self.pov_x:
@@ -129,7 +150,7 @@ class Car:
                     elif self.turn == "forward":
                         self.rect.x -= 2
         elif self.orientation == "vertical":
-            if self.direction == 1: #вниз
+            if self.direction == 1:  # движение вниз
                 if self.rect.y < self.pov_y:
                     self.rect.y += 2
                 else:
@@ -147,7 +168,7 @@ class Car:
                             self.rect.x += 2
                     elif self.turn == "forward":
                         self.rect.y += 2
-            elif self.direction == -1: #вверх
+            elif self.direction == -1:  # движение вверх
                 if self.rect.y > self.pov_y:
                     self.rect.y -= 2
                 else:
@@ -174,6 +195,11 @@ class Car:
         rotated_surface = pygame.transform.rotozoom(self.original_surface, self.angle, 1)
         rotated_rect = rotated_surface.get_rect(center=self.rect.center)
         surface.blit(rotated_surface, rotated_rect.topleft)
+
+    def stop(self):
+        """Останавливает машину при вызове."""
+        self.stopped = True
+
 
 # Основной игровой цикл
 running = True
@@ -236,6 +262,9 @@ while running:
     # Отрисовываем машины
     for car in cars:
         car.draw(screen)
+
+    if cars != []:
+        is_near(cars)
 
     # Обновляем экран
     pygame.display.flip()
