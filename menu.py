@@ -1,14 +1,13 @@
 import pygame
 import sys
-import new
-import buildings
+# import main
 
 # Инициализация Pygame
 pygame.init()
 pygame.mixer.init()
 
-# Разрешение экрана (будет полноэкранным)
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+# Создание окна с разрешением 1920x1080 (не полноэкранного)
+screen = pygame.display.set_mode((1920, 1080))
 width, height = screen.get_size()
 
 pygame.mixer.music.load('music/Каламбур - Деревня дураков.mp3')
@@ -16,13 +15,13 @@ pygame.mixer.music.play(-1)
 
 # Загрузка изображений
 background_image = pygame.image.load('images/background.png')  # Путь к фоновому изображению
-button_image = pygame.image.load('images/start_buttton.png')  # Путь к изображению кнопки
-exit_button_image = pygame.image.load('images/exit_button.png')  # Путь к изображению кнопки выхода
-image_to_display = pygame.image.load('images/if_start.jpg')  # Путь к изображению, которое будет отображаться
+button_image = pygame.image.load('images/start_buttton.png')     # Путь к изображению кнопки
+exit_button_image = pygame.image.load('images/exit_button.png')    # Путь к изображению кнопки выхода
+image_to_display = pygame.image.load('images/if_start.jpg')        # Путь к изображению, которое будет отображаться
 
 # Масштабируем кнопки под размеры
 button_rect = button_image.get_rect(center=(width // 2, height // 2))
-exit_button_rect = exit_button_image.get_rect(topleft=(60, 45))  #  кнопка выхода
+exit_button_rect = exit_button_image.get_rect(topleft=(225,125))  # Кнопка выхода
 
 # Цвета
 WHITE = (255, 255, 255)
@@ -56,7 +55,6 @@ def show_image():
     # Закрытие окна
     pygame.display.quit()
 
-default = buildings.construction("гравийная дорога", "300", 1, "10", 'images/road1.png')
 
 # Основной цикл
 running = True
@@ -66,19 +64,16 @@ while running:
     screen.blit(background_image, (0, 0))  # Фоновое изображение
 
     # Отображение кнопок
-    screen.blit(button_image, button_rect)  # Основная кнопка
+    screen.blit(button_image, button_rect)   # Основная кнопка
     screen.blit(exit_button_image, exit_button_rect)  # Кнопка выхода
-
-
 
     # Обработка событий
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if button_rect.collidepoint(event.pos):
-                new.game()
-
+            # if button_rect.collidepoint(event.pos):
+            #     # main.game()
             if exit_button_rect.collidepoint(event.pos):  # Проверка нажатия на кнопку выхода
                 running = False  # Выход из игры
 
