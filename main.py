@@ -1,7 +1,6 @@
 import pygame
-import math
 import random
-
+import game_over
 
 # Инициализация Pygame
 pygame.init()
@@ -11,6 +10,7 @@ pygame.mixer.init()
 WIDTH, HEIGHT = 1920, 1080
 FPS = 60
 
+
 # Цвета
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -18,8 +18,7 @@ GRAY = (128, 128, 128)
 RED = (255, 0, 0)
 GREEN = (10, 247, 49)
 
-game_over_image = pygame.image.load('images/game_over.jpg')
-game_over_image_rect = game_over_image.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+font = pygame.font.Font("KellySlab-Regular.ttf", 80)
 
 # Настройка окна
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -32,6 +31,7 @@ pygame.mixer.music.play(-1)
 # Состояния светофоров
 sw = [True, True, True, True]
 s = [pygame.Rect(900, HEIGHT / 2 - 10, 20, 70), pygame.Rect(WIDTH - 900 + 25, HEIGHT / 2 - 10, 20, 70), pygame.Rect(WIDTH / 2 - 10, 480, 70, 20), pygame.Rect(WIDTH / 2 - 10, HEIGHT - 455, 70, 20)]
+
 
 
 def is_near(cars):
@@ -257,6 +257,10 @@ while running:
     for i in range(len(s)):
         pygame.draw.rect(screen, GREEN if sw[i] else RED, s[i])
 
+    texttime = font.render(f"Time: {pygame.time.get_ticks() // 1000}", True, (0, 0, 0))
+    texttime_rect = texttime.get_rect(topleft=(500,130))
+    screen.blit(texttime, texttime_rect)
+
     # Движение машин
     for car in cars[:]:
         if not car.move():  # Если машина вышла за границы, удаляем её
@@ -273,9 +277,10 @@ while running:
     if current_time>2000:
         for m in cars:
             for j in cars:
-                if (m.rect.center[0]<1035 and m.rect.center[0]>935 and m.rect.center[1]>515 and m.rect.center[1]<615) and j.rect.colliderect(m.rect) and m != j:
-
-                    screen.blit(game_over_image, game_over_image_rect)
+                if ((m.rect.center[0]<1035 and m.rect.center[0]>935 and m.rect.center[1]>515 and m.rect.center[1]<615) and j.rect.colliderect(m.rect) and m != j) or new_car.stopped==True:
+                    game_over.game_over(pygame.time.get_ticks()//1000)
+                    running=False
+                    #screen.blit(game_over_image, game_over_image_rect)
 
     # Обновляем экран
     pygame.display.flip()
