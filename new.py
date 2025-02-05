@@ -223,7 +223,7 @@ while running:
     current_time = pygame.time.get_ticks()
 
     # Спавн машин каждую 3 секунды
-    if current_time - last_spawn_time >= 3000:  # Если прошло 3 секунды
+    if current_time - last_spawn_time >= 1000:  # Если прошло 3 секунды
         direction = random.choice([-1, 1])  # Случайное направление
         orientation = random.choice(["horizontal", "vertical"])  # Случайная ориентация
         if orientation == "horizontal":
@@ -270,10 +270,12 @@ while running:
         is_red(cars)
         is_near(cars)
 
-    # for m in cars:
-    #     for j in cars:
-    #         if j.rect.colliderect(m.rect):
-    #             screen.blit(game_over_image, game_over_image_rect)
+    if current_time>2000:
+        for m in cars:
+            for j in cars:
+                if (m.rect.center[0]<1035 and m.rect.center[0]>935 and m.rect.center[1]>515 and m.rect.center[1]<615) and j.rect.colliderect(m.rect):
+                    #print("ok")
+                    screen.blit(game_over_image, game_over_image_rect)
 
     # Обновляем экран
     pygame.display.flip()
