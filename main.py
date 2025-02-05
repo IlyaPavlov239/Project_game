@@ -1,16 +1,15 @@
 import pygame
 import random
+from menu import menu
+from pygame.examples.moveit import WIDTH
+
 import game_over
 
 # Инициализация Pygame
 pygame.init()
 pygame.mixer.init()
 
-# Константы
-WIDTH, HEIGHT = 1920, 1080
-FPS = 60
-
-
+font = pygame.font.Font("KellySlab-Regular.ttf", 80)
 # Цвета
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -18,7 +17,24 @@ GRAY = (128, 128, 128)
 RED = (255, 0, 0)
 GREEN = (10, 247, 49)
 
-font = pygame.font.Font("KellySlab-Regular.ttf", 80)
+# Константы
+WIDTH, HEIGHT = 1920, 1080
+FPS = 60
+paused=False
+pause1 = pygame.image.load('images/pause1.png')
+pause2 = pygame.image.load('images/pause2.png')
+pause1_rect = pause1.get_rect(topleft=(300,130))
+pause2_rect = pause2.get_rect(topleft=(300,130))
+press=False
+continue_rect = pygame.Rect(WIDTH/2, 250, 380, 90)  # Позиция и размер кнопки
+continue_rect.center = (WIDTH/2, 500)
+continue_text = font.render("CONTINUE", True, WHITE)
+finish_rect = pygame.Rect(WIDTH/2, 250, 270, 90)  # Позиция и размер кнопки
+finish_rect.center = (WIDTH/2, 700)
+finish_text = font.render("FINISH", True, WHITE)
+
+
+
 
 # Настройка окна
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -241,47 +257,66 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            print(pygame.mouse.get_pos())
             if event.button == 1:  # Левая кнопка мыши
-                for i in range(len(s)):
-                    if s[i].collidepoint(event.pos):
-                        sw[i] = not sw[i]
+                if not paused:
+                    for i in range(len(s)):
+                        if s[i].collidepoint(event.pos):
+                            sw[i] = not sw[i]
+                else:
+                    if continue_rect.collidepoint(event.pos):
+                        press = not press
+                        paused = not paused
+                    if finish_rect.collidepoint(event.pos):
+                        menu.menu()
+                if pause1_rect.collidepoint(event.pos) or pause2_rect.collidepoint(event.pos):
+                    press=not press
+                    paused=not paused
     # Заполнение фона
     screen.fill(WHITE)
 
-    # Рисуем дороги
-    pygame.draw.rect(screen, GRAY, (0, HEIGHT / 2 - 25, WIDTH, 100))
-    pygame.draw.rect(screen, GRAY, (WIDTH / 2 - 25, 0, 100, HEIGHT))
+    if press:
+        screen.blit(pause2,pause2_rect)
+    else:
+        screen.blit(pause1, pause1_rect)
 
-    # Рисуем светофоры
-    for i in range(len(s)):
-        pygame.draw.rect(screen, GREEN if sw[i] else RED, s[i])
+    if not paused:
+        # Рисуем дороги
+        pygame.draw.rect(screen, GRAY, (0, HEIGHT / 2 - 25, WIDTH, 100))
+        pygame.draw.rect(screen, GRAY, (WIDTH / 2 - 25, 0, 100, HEIGHT))
 
-    texttime = font.render(f"Time: {pygame.time.get_ticks() // 1000}", True, (0, 0, 0))
-    texttime_rect = texttime.get_rect(topleft=(500,130))
-    screen.blit(texttime, texttime_rect)
+        # Рисуем светофоры
+        for i in range(len(s)):
+            pygame.draw.rect(screen, GREEN if sw[i] else RED, s[i])
 
-    # Движение машин
-    for car in cars[:]:
-        if not car.move():  # Если машина вышла за границы, удаляем её
-            cars.remove(car)
+        texttime = font.render(f"Time: {pygame.time.get_ticks() // 1000}", True, (0, 0, 0))
+        texttime_rect = texttime.get_rect(topleft=(500,130))
+        screen.blit(texttime, texttime_rect)
 
-    # Отрисовываем машины
-    for car in cars:
-        car.draw(screen)
+        # Движение машин
+        for car in cars[:]:
+            if not car.move():  # Если машина вышла за границы, удаляем её
+                cars.remove(car)
 
-    if cars != []:
-        is_red(cars)
-        is_near(cars)
+        # Отрисовываем машины
+        for car in cars:
+            car.draw(screen)
 
-    if current_time>2000:
-        for m in cars:
-            for j in cars:
-                if ((m.rect.center[0]<1035 and m.rect.center[0]>935 and m.rect.center[1]>515 and m.rect.center[1]<615) and j.rect.colliderect(m.rect) and m != j) or new_car.stopped==True:
-                    game_over.game_over(pygame.time.get_ticks()//1000)
-                    running=False
-                    #screen.blit(game_over_image, game_over_image_rect)
+        if cars != []:
+            is_red(cars)
+            is_near(cars)
 
+        if current_time>2000:
+            for m in cars:
+                for j in cars:
+                    if ((m.rect.center[0]<1035 and m.rect.center[0]>935 and m.rect.center[1]>515 and m.rect.center[1]<615) and j.rect.colliderect(m.rect) and m != j) or new_car.stopped==True:
+                        game_over.game_over(pygame.time.get_ticks()//1000)
+                        running=False
+                        #screen.blit(game_over_image, game_over_image_rect)
+    else:
+        pygame.draw.rect(screen, GRAY, continue_rect)
+        screen.blit(continue_text,continue_rect)
+        pygame.draw.rect(screen, GRAY, finish_rect)
+        screen.blit(finish_text, finish_rect)
     # Обновляем экран
     pygame.display.flip()
     clock.tick(FPS)
