@@ -70,11 +70,10 @@ def game_over(time):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 # Проверка клика по кнопке "Menu"
-                if menu_button_rect.collidepoint(mouse_pos):
-                    print("Going to Menu...")  # Тут можно добавить переход в меню
+                if menu_button_rect.collidepoint(mouse_pos):  # Тут можно добавить переход в меню
                     running = False
                 # Проверка клика по кнопке "Попробовать снова"
                 elif retry_button_rect.collidepoint(mouse_pos):
-                    print("Restarting game...")  # Тут можно перезапустить игру
+                    running=False  # Тут можно перезапустить игру
 
     pygame.quit()
