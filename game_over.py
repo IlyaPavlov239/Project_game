@@ -1,13 +1,11 @@
 import pygame
 
-def game_over(time):
+def run(screen,time):
     # Инициализация Pygame
-    pygame.init()
 
     # Размеры окна
     WIDTH, HEIGHT = 1920, 1080
     # Создание окна
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
     # Увеличенный шрифт
     font = pygame.font.Font("KellySlab-Regular.ttf", 80)  # Укажи путь к шрифту
@@ -71,9 +69,9 @@ def game_over(time):
                 mouse_pos = event.pos
                 # Проверка клика по кнопке "Menu"
                 if menu_button_rect.collidepoint(mouse_pos):  # Тут можно добавить переход в меню
-                    running = False
+                    return "menu"
                 # Проверка клика по кнопке "Попробовать снова"
                 elif retry_button_rect.collidepoint(mouse_pos):
-                    running=False  # Тут можно перезапустить игру
+                    return "game"  # Тут можно перезапустить игру
 
     pygame.quit()
