@@ -29,8 +29,8 @@ def run(screen,time):
 
     # Увеличенные кнопки
     menu_button_rect = pygame.Rect(WIDTH/2, 700, 300, 100)  # "Menu" (в левом верхнем углу)
-    retry_button_rect = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 + 150, 300, 100)  # "Try Again"
-    menu_button_rect.center=(WIDTH/2, HEIGHT // 2 + 350)
+    retry_button_rect = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 + 150, 400, 100)  # "Try Again"
+    menu_button_rect.center=(WIDTH/2, HEIGHT // 2 + 300)
     retry_button_rect.center=(WIDTH/2, HEIGHT // 2 + 150)
 
     # Загрузка и проигрывание музыки

@@ -1,10 +1,11 @@
 import pygame
 import random
-import game_over
+import math
 def run(screen):
     # Инициализация Pygame
     pygame.mixer.init()
     start_time = pygame.time.get_ticks()
+    tspawn = 0
     font = pygame.font.Font("KellySlab-Regular.ttf", 80)
     # Цвета
     WHITE = (255, 255, 255)
@@ -29,9 +30,10 @@ def run(screen):
     finish_rect.center = (WIDTH/2, 700)
     finish_text = font.render("MENU", True, WHITE)
 
-
-
-
+    # Загрузка изображения (замени "image.png" на свой файл)
+    advert1 = pygame.image.load("images/advert1.png")  # Убедись, что файл находится в той же папке
+    advert2 = pygame.image.load("images/advert2.png")  # Убедись, что файл находится в той же папке
+    #advert = pygame.transform.scale(image, (200, 200))  # Масштабируем до 200x200
 
     # Фоновая музыка
     pygame.mixer.music.load('music/OMFG - Hello.mp3')
@@ -73,7 +75,7 @@ def run(screen):
     # Класс машины (универсальный)
 
     class Car:
-        def __init__(self, direction, turn, orientation):
+        def __init__(self, direction, turn, orientation, speed):
             if orientation == "horizontal":
                 if direction == 1:
                     x, y = 0, HEIGHT - 505
@@ -90,6 +92,8 @@ def run(screen):
             self.turn = turn  # Поворот (например, "up", "down", "forward")
             self.orientation = orientation  # Ориентация ("horizontal" или "vertical")
             self.angle = 0
+            self.speed = speed
+            self.angv = speed
 
             # Инициализация точек поворота в зависимости от направления и ориентации
             if orientation == "horizontal":
@@ -131,77 +135,77 @@ def run(screen):
             if self.orientation == "horizontal":  # Движение по горизонтали
                 if self.direction == 1:  # Движение вправо
                     if self.rect.x < self.pov_x:
-                        self.rect.x += 2
+                        self.rect.x += self.speed
                     else:
                         if self.turn == "up":
                             if self.angle < 90:
-                                self.angle += 2
-                                self.rect.y -= 2
+                                self.angle += self.angv
+                                self.rect.y -= self.speed
                             else:
-                                self.rect.y -= 2
+                                self.rect.y -= self.speed
                         elif self.turn == "down":
                             if self.angle > -90:
-                                self.angle -= 2
-                                self.rect.y += 2
+                                self.angle -= self.angv
+                                self.rect.y += self.speed
                             else:
-                                self.rect.y += 2
+                                self.rect.y += self.speed
                         elif self.turn == "forward":
-                            self.rect.x += 2
+                            self.rect.x += self.speed
                 elif self.direction == -1:
                     if self.rect.x > self.pov_x:
-                        self.rect.x -= 2
+                        self.rect.x -= self.speed
                     else:
                         if self.turn == "up":
                             if self.angle > -90:
-                                self.angle -= 2
-                                self.rect.y -= 2
+                                self.angle -= self.angv
+                                self.rect.y -= self.speed
                             else:
-                                self.rect.y -= 2
+                                self.rect.y -= self.speed
                         elif self.turn == "down":
                             if self.angle < 90:
-                                self.angle += 2
-                                self.rect.y += 2
+                                self.angle += self.angv
+                                self.rect.y += self.speed
                             else:
-                                self.rect.y += 2
+                                self.rect.y += self.speed
                         elif self.turn == "forward":
-                            self.rect.x -= 2
+                            self.rect.x -= self.speed
             elif self.orientation == "vertical":
                 if self.direction == 1:  # движение вниз
                     if self.rect.y < self.pov_y:
-                        self.rect.y += 2
+                        self.rect.y += self.speed
                     else:
                         if self.turn == "left":
                             if self.angle > -90:
-                                self.angle -= 2
-                                self.rect.x -= 2
+                                self.angle -= self.angv
+                                self.rect.x -= self.speed
                             else:
-                                self.rect.x -= 2
+                                self.rect.x -= self.speed
                         elif self.turn == "right":
                             if self.angle < 90:
-                                self.angle += 2
-                                self.rect.x += 2
+                                self.angle += self.angv
+                                self.rect.x += self.speed
                             else:
-                                self.rect.x += 2
+                                self.rect.x += self.speed
                         elif self.turn == "forward":
-                            self.rect.y += 2
+                            self.rect.y += self.speed
                 elif self.direction == -1:  # движение вверх
                     if self.rect.y > self.pov_y:
-                        self.rect.y -= 2
+                        self.rect.y -= self.speed
                     else:
                         if self.turn == "left":
                             if self.angle < 90:
-                                self.angle += 2
-                                self.rect.x -= 2
+                                self.angle += self.angv
+                                self.rect.x -= self.speed
                             else:
-                                self.rect.x -= 2
+                                self.rect.x -= self.speed
                         elif self.turn == "right":
                             if self.angle > -90:
-                                self.angle -= 2
-                                self.rect.x += 2
+                                self.angle -= self.angv
+                                self.rect.x += self.speed
                             else:
-                                self.rect.x += 2
+                                self.rect.x += self.speed
                         elif self.turn == "forward":
-                            self.rect.y -= 2
+                            self.rect.y -= self.speed
 
             if self.rect.x > WIDTH or self.rect.x < 0 or self.rect.y < 0 or self.rect.y > HEIGHT:
                 return False
@@ -231,8 +235,10 @@ def run(screen):
     while running:
         current_time = pygame.time.get_ticks()-start_time
 
+
+
         # Спавн машин каждую 3 секунды
-        if current_time - last_spawn_time >= 1000:  # Если прошло 3 секунды
+        if current_time - last_spawn_time >= tspawn:  # Если прошло tspawn секунды
             direction = random.choice([-1, 1])  # Случайное направление
             orientation = random.choice(["horizontal", "vertical"])  # Случайная ориентация
             if orientation == "horizontal":
@@ -241,10 +247,12 @@ def run(screen):
                 turn = random.choice(["left", "right", "forward"])
 
             # Создаем новую машину и добавляем её в список
-            new_car = Car(direction, turn, orientation)
+            new_car = Car(direction, turn, orientation, 2)
             cars.append(new_car)
 
             last_spawn_time = current_time  # Обновляем время последнего спавна
+
+        tspawn = 1000000000 / ((current_time+350000))-2000
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -304,6 +312,11 @@ def run(screen):
                         if ((m.rect.center[0]<1035 and m.rect.center[0]>935 and m.rect.center[1]>515 and m.rect.center[1]<615) and j.rect.colliderect(m.rect) and m != j) or new_car.stopped==True:
 
                             return ("game_over",(pygame.time.get_ticks()//1000))
+
+            if current_time > 100000:
+                screen.blit(advert1, (WIDTH / 2 + 300,150))
+                screen.blit(advert2, (WIDTH / 2 + 300, HEIGHT-450))
+
         else:
             pygame.draw.rect(screen, GRAY, continue_rect)
             screen.blit(continue_text,continue_rect)
