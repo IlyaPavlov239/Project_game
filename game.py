@@ -237,22 +237,7 @@ def run(screen):
 
 
 
-        # Спавн машин каждую 3 секунды
-        if current_time - last_spawn_time >= tspawn:  # Если прошло tspawn секунды
-            direction = random.choice([-1, 1])  # Случайное направление
-            orientation = random.choice(["horizontal", "vertical"])  # Случайная ориентация
-            if orientation == "horizontal":
-                turn = random.choice(["up", "down", "forward"])
-            else:
-                turn = random.choice(["left", "right", "forward"])
 
-            # Создаем новую машину и добавляем её в список
-            new_car = Car(direction, turn, orientation, 2)
-            cars.append(new_car)
-
-            last_spawn_time = current_time  # Обновляем время последнего спавна
-
-        tspawn = 1000000000 / ((current_time+350000))-2000
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -281,6 +266,22 @@ def run(screen):
             screen.blit(pause1, pause1_rect)
 
         if not paused:
+            # Спавн машин каждую 3 секунды
+            if current_time - last_spawn_time >= tspawn:  # Если прошло tspawn секунды
+                direction = random.choice([-1, 1])  # Случайное направление
+                orientation = random.choice(["horizontal", "vertical"])  # Случайная ориентация
+                if orientation == "horizontal":
+                    turn = random.choice(["up", "down", "forward"])
+                else:
+                    turn = random.choice(["left", "right", "forward"])
+
+                # Создаем новую машину и добавляем её в список
+                new_car = Car(direction, turn, orientation, 2)
+                cars.append(new_car)
+
+                last_spawn_time = current_time  # Обновляем время последнего спавна
+
+            tspawn = 1000000000 / ((current_time + 350000)) - 1000
             # Рисуем дороги
             pygame.draw.rect(screen, GRAY, (0, HEIGHT / 2 - 25, WIDTH, 100))
             pygame.draw.rect(screen, GRAY, (WIDTH / 2 - 25, 0, 100, HEIGHT))
@@ -311,7 +312,7 @@ def run(screen):
                     for j in cars:
                         if ((m.rect.center[0]<1035 and m.rect.center[0]>935 and m.rect.center[1]>515 and m.rect.center[1]<615) and j.rect.colliderect(m.rect) and m != j) or new_car.stopped==True:
 
-                            return ("game_over",(pygame.time.get_ticks()//1000))
+                            return ("game_over",(current_time//1000))
 
             if current_time > 100000:
                 screen.blit(advert1, (WIDTH / 2 + 300,150))
