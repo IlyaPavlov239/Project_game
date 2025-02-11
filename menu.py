@@ -2,29 +2,46 @@ import pygame
 
 
 def run(screen):
-    font = pygame.font.Font(None, 50)
-    clock = pygame.time.Clock()
+    # Размеры окна
+    WIDTH, HEIGHT = 1920, 1080
 
-    while True:
-        screen.fill((30, 30, 30))
+    # Инициализация шрифта
+    font = pygame.font.Font("KellySlab-Regular.ttf", 80)  # Укажи путь к шрифту
 
-        title = font.render("Главное меню", True, (255, 255, 255))
-        start_btn = font.render("Начать игру (Enter)", True, (200, 200, 200))
-        quit_btn = font.render("Выход (Esc)", True, (200, 200, 200))
+    # Создание текстов кнопок
+    start_text = font.render("START", True, (255, 255, 255))
+    exit_text = font.render("EXIT", True, (255, 255, 255))
 
-        screen.blit(title, (300, 150))
-        screen.blit(start_btn, (250, 300))
-        screen.blit(quit_btn, (250, 350))
+    # Определение кнопок
+    start_button_rect = pygame.Rect(0, 0, 300, 100)
+    exit_button_rect = pygame.Rect(250, 150, 200, 80)
+
+    start_button_rect.center = (WIDTH // 2, HEIGHT // 2)
+
+    running = True
+    while running:
+        screen.fill((255, 255, 255))  # Белый фон
+
+        # Рисуем кнопку "START"
+        pygame.draw.rect(screen, (0, 255, 0), start_button_rect, border_radius=20)
+        start_text_rect = start_text.get_rect(center=start_button_rect.center)
+        screen.blit(start_text, start_text_rect)
+
+        # Рисуем кнопку "EXIT"
+        pygame.draw.rect(screen, (255, 0, 0), exit_button_rect, border_radius=20)
+        exit_text_rect = exit_text.get_rect(center=exit_button_rect.center)
+        screen.blit(exit_text, exit_text_rect)
 
         pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:  # Enter
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return "quit"
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if start_button_rect.collidepoint(mouse_pos):
                     return "game"
-                if event.key == pygame.K_ESCAPE:  # Esc
+                elif exit_button_rect.collidepoint(mouse_pos):
                     return "quit"
-
-        clock.tick(30)

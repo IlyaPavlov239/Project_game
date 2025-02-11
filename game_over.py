@@ -28,8 +28,10 @@ def run(screen,time):
     text3_rect = text3.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 50))  # Размещаем ниже TIME
 
     # Увеличенные кнопки
-    menu_button_rect = pygame.Rect(150, 100, 300, 100)  # "Menu" (в левом верхнем углу)
+    menu_button_rect = pygame.Rect(WIDTH/2, 700, 300, 100)  # "Menu" (в левом верхнем углу)
     retry_button_rect = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 + 150, 300, 100)  # "Try Again"
+    menu_button_rect.center=(WIDTH/2, HEIGHT // 2 + 350)
+    retry_button_rect.center=(WIDTH/2, HEIGHT // 2 + 150)
 
     # Загрузка и проигрывание музыки
     pygame.mixer.music.load("music/game_over.mp3")  # Укажи путь к файлу музыки
@@ -74,4 +76,4 @@ def run(screen,time):
                 elif retry_button_rect.collidepoint(mouse_pos):
                     return "game"  # Тут можно перезапустить игру
 
-    pygame.quit()
+
