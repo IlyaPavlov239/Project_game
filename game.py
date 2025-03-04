@@ -52,9 +52,9 @@ def run(screen):
             #if i.stopped == False:
                 for k in cars:
                     if not (i.rect.center[0]<1035 and i.rect.center[0]>935 and i.rect.center[1]>515 and i.rect.center[1]<615) and i.direction==k.direction and i.orientation==k.orientation and i!=k:
-                        if i.orientation=="horizontal" and ((i.direction==1 and i.rect.center[0]>k.rect.center[0] and i.rect.center[0]<884) or (i.direction==-1 and i.rect.center[0]<k.rect.center[0] and i.rect.center[0]>1037)) and abs(i.rect.center[0]-k.rect.center[0])<115:
+                        if i.orientation=="horizontal" and ((i.direction==1 and i.rect.center[0]>k.rect.center[0] and i.rect.center[0]<884) or (i.direction==-1 and i.rect.center[0]<k.rect.center[0] and i.rect.center[0]>1037)) and abs(i.rect.center[0]-k.rect.center[0])<120:
                             k.stop()
-                        if i.orientation=="vertical" and ((i.direction==1 and i.rect.center[1]>k.rect.center[1] and i.rect.center[1]<465) or (i.direction==-1 and i.rect.center[1]<k.rect.center[1] and i.rect.center[1]>615)) and abs(i.rect.center[1]-k.rect.center[1])<115:
+                        if i.orientation=="vertical" and ((i.direction==1 and i.rect.center[1]>k.rect.center[1] and i.rect.center[1]<465) or (i.direction==-1 and i.rect.center[1]<k.rect.center[1] and i.rect.center[1]>615)) and abs(i.rect.center[1]-k.rect.center[1])<120:
                             k.stop()
 
     def is_red(cars):
@@ -93,7 +93,7 @@ def run(screen):
             self.orientation = orientation  # Ориентация ("horizontal" или "vertical")
             self.angle = 0
             self.speed = speed
-            self.angv = speed
+            self.angv = speed/abs(speed)*(abs(speed)+1)
 
             # Инициализация точек поворота в зависимости от направления и ориентации
             if orientation == "horizontal":
@@ -281,7 +281,19 @@ def run(screen):
 
                 last_spawn_time = current_time  # Обновляем время последнего спавна
 
-            tspawn = 1000000000 / ((current_time + 350000)) - 1000
+            # Выбор уровня сложности
+            difficulty = "hard"  # Может быть "easy", "medium" или "hard"
+
+            # Выбор уровня сложности
+            difficulty = "medium"  # Может быть "easy", "medium" или "hard"
+
+            # Установка формулы в зависимости от уровня сложности
+            if difficulty == "easy":
+                tspawn = max(800, 2500 * math.exp(-current_time / 80000))
+            elif difficulty == "medium":
+                tspawn = max(400, 2000 * math.exp(-current_time / 40000))
+            elif difficulty == "hard":
+                tspawn = max(200, 1500 * math.exp(-current_time / 20000))
             # Рисуем дороги
             pygame.draw.rect(screen, GRAY, (0, HEIGHT / 2 - 75, WIDTH, 150))
             pygame.draw.rect(screen, GRAY, (WIDTH / 2 - 75, 0, 150, HEIGHT))
@@ -315,7 +327,7 @@ def run(screen):
                             if m.mask.overlap(j.mask, offset):
                                 return ("game_over", (current_time // 1000))
 
-            if current_time > 100000:
+            if current_time > 10000:
                 screen.blit(advert1, (WIDTH / 2 + 300, 150))
                 screen.blit(advert2, (WIDTH / 2 + 300, HEIGHT - 450))
 
