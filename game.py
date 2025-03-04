@@ -2,7 +2,7 @@ import pygame
 import random
 import math
 
-def run(screen):
+def run(screen, difficulty):
     # Инициализация Pygame
     pygame.mixer.init()
     start_time = pygame.time.get_ticks()
@@ -14,6 +14,12 @@ def run(screen):
     GRAY = (128, 128, 128)
     RED = (255, 0, 0)
     GREEN = (10, 247, 49)
+    BLUE = (0, 0, 255)  # Цвет кнопки CONTINUE
+    DARK_BLUE = (0, 0, 200)  # Темный синий для наведения
+    DARKER_BLUE = (0, 0, 150)  # Еще темнее синий для нажатия
+    GREEN_BUTTON = (0, 255, 0)  # Цвет кнопки MENU
+    DARK_GREEN = (0, 200, 0)  # Темный зеленый для наведения
+    DARKER_GREEN = (0, 150, 0)  # Еще темнее зеленый для нажатия
 
     # Константы
     WIDTH, HEIGHT = 1920, 1080
@@ -24,15 +30,31 @@ def run(screen):
     pause1_rect = pause1.get_rect(topleft=(300, 130))
     pause2_rect = pause2.get_rect(topleft=(300, 130))
     press = False
+
+    # Кнопка CONTINUE
     continue_rect = pygame.Rect(WIDTH / 2, 250, 380, 90)  # Позиция и размер кнопки
     continue_rect.center = (WIDTH / 2, 500)
     continue_text = font.render("CONTINUE", True, WHITE)
+
+    # Кнопка MENU
     finish_rect = pygame.Rect(WIDTH / 2, 250, 240, 90)  # Позиция и размер кнопки
     finish_rect.center = (WIDTH / 2, 700)
     finish_text = font.render("MENU", True, WHITE)
 
+    # Переменные для анимации кнопок
+    continue_button_pressed = False
+    finish_button_pressed = False
+    continue_button_hovered = False
+    finish_button_hovered = False
+
     advert1 = pygame.image.load("images/advert1.png")  # Убедись, что файл находится в той же папке
     advert2 = pygame.image.load("images/advert2.png")  # Убедись, что файл находится в той же папке
+
+    # Загрузка изображений машин
+    car_horizontal_right = pygame.image.load("images/hor_right/car2.png").convert_alpha()
+    car_horizontal_left = pygame.image.load("images/hor_left/car2.png").convert_alpha()
+    car_vertical_down = pygame.image.load("images/ver_down/car2.png").convert_alpha()
+    car_vertical_up = pygame.image.load("images/ver_up/car2.png").convert_alpha()
 
     # Фоновая музыка
     pygame.mixer.music.load('music/OMFG - Hello.mp3')
@@ -49,184 +71,195 @@ def run(screen):
 
     def is_near(cars):
         for i in cars:
-            #if i.stopped == False:
-                for k in cars:
-                    if not (i.rect.center[0]<1035 and i.rect.center[0]>935 and i.rect.center[1]>515 and i.rect.center[1]<615) and i.direction==k.direction and i.orientation==k.orientation and i!=k:
-                        if i.orientation=="horizontal" and ((i.direction==1 and i.rect.center[0]>k.rect.center[0] and i.rect.center[0]<884) or (i.direction==-1 and i.rect.center[0]<k.rect.center[0] and i.rect.center[0]>1037)) and abs(i.rect.center[0]-k.rect.center[0])<120:
-                            k.stop()
-                        if i.orientation=="vertical" and ((i.direction==1 and i.rect.center[1]>k.rect.center[1] and i.rect.center[1]<465) or (i.direction==-1 and i.rect.center[1]<k.rect.center[1] and i.rect.center[1]>615)) and abs(i.rect.center[1]-k.rect.center[1])<120:
-                            k.stop()
+            for k in cars:
+                if i != k and i.direction == k.direction and i.orientation == k.orientation:
+                    # Если машина i уже повернула, она не должна блокировать другие машины
+                    if i.orientation == "horizontal":
+                        if (i.direction == 1 and i.x > k.x and i.x < 884) or (i.direction == -1 and i.x < k.x and i.x > 1037):
+                            if abs(i.x - k.x) < 120:
+                                # Если машина i уже повернула, она не блокирует k
+                                if not (i.turn == "up" and i.y < 465) and not (i.turn == "down" and i.y > 615):
+                                    k.stop()
+                    elif i.orientation == "vertical":
+                        if (i.direction == 1 and i.y > k.y and i.y < 465) or (i.direction == -1 and i.y < k.y and i.y > 615):
+                            if abs(i.y - k.y) < 120:
+                                # Если машина i уже повернула, она не блокирует k
+                                if not (i.turn == "left" and i.x < 935) and not (i.turn == "right" and i.x > 1035):
+                                    k.stop()
 
     def is_red(cars):
         for j in cars:
             j.go()
         for i in cars:
             if i.orientation == "horizontal":
-                if i.rect.center[0] > s[0].center[0] - 50 and i.rect.center[0] < s[0].center[0] and i.direction == 1 and not sw[0]:
+                if i.x > s[0].center[0] - 50 and i.x < s[0].center[0] and i.direction == 1 and not sw[0]:
                     i.stop()
-                elif i.rect.center[0] < s[1].center[0] + 50 and i.rect.center[0] > s[1].center[0] and i.direction == -1 and not sw[1]:
+                elif i.x < s[1].center[0] + 50 and i.x > s[1].center[0] and i.direction == -1 and not sw[1]:
                     i.stop()
-
             else:
-                if i.rect.center[1] > s[2].center[1] - 50 and i.rect.center[1] < s[2].center[1] and i.direction == 1 and not sw[2]:
+                if i.y > s[2].center[1] - 50 and i.y < s[2].center[1] and i.direction == 1 and not sw[2]:
                     i.stop()
-                elif i.rect.center[1] < s[3].center[1] + 50 and i.rect.center[1] > s[3].center[1] and i.direction == -1 and not sw[3]:
+                elif i.y < s[3].center[1] + 50 and i.y > s[3].center[1] and i.direction == -1 and not sw[3]:
                     i.stop()
 
-    # Класс машины (универсальный)
+    # Класс машины (работает с изображениями)
     class Car:
         def __init__(self, direction, turn, orientation, speed):
+            # Начальные координаты машины
             if orientation == "horizontal":
                 if direction == 1:
-                    x, y = 0, HEIGHT - 510
+                    self.x, self.y = 0, HEIGHT - 500  # Начальная позиция для горизонтальных машин
+                    self.image = car_horizontal_right  # Используем изображение для движения вправо
                 else:
-                    x, y = WIDTH, 480
+                    self.x, self.y = WIDTH, 495
+                    self.image = car_horizontal_left  # Используем изображение для движения влево
             else:
                 if direction == 1:
-                    x, y = 900, 0
+                    self.x, self.y = 915, 0  # Начальная позиция для вертикальных машин
+                    self.image = car_vertical_down  # Используем изображение для движения вниз
                 else:
-                    x, y = WIDTH - 930, HEIGHT
+                    self.x, self.y = WIDTH - 920, HEIGHT
+                    self.image = car_vertical_up  # Используем изображение для движения вверх
 
-            self.rect = pygame.Rect(x, y, 75, 30) if orientation == "horizontal" else pygame.Rect(x, y, 30, 75)
             self.direction = direction  # Направление движения (1 - вправо, -1 - влево / вверх, вниз)
             self.turn = turn  # Поворот (например, "up", "down", "forward")
             self.orientation = orientation  # Ориентация ("horizontal" или "vertical")
-            self.angle = 0
-            self.speed = speed
-            self.angv = speed/abs(speed)*(abs(speed)+1)
+            self.angle = 0  # Угол поворота машины
+            self.speed = speed  # Скорость машины
+            self.angv = speed / abs(speed) * (abs(speed) + 1)  # Угловая скорость
 
-            # Инициализация точек поворота в зависимости от направления и ориентации
+            # Точки поворота
             if orientation == "horizontal":
-                if turn == "down":
-                    self.pov_x = 880
-                    self.pov_y = 0
-                elif turn == "up":
-                    self.pov_x = WIDTH - 950
-                    self.pov_y = 0
+                if turn == "up":
+                    self.pov_x, self.pov_y = 1000, 465  # Точка поворота вверх
+                elif turn == "down":
+                    self.pov_x, self.pov_y = 915, 615  # Точка поворота вниз
                 else:  # forward
-                    self.pov_x = WIDTH
-                    self.pov_y = HEIGHT // 2
+                    self.pov_x, self.pov_y = WIDTH, HEIGHT // 2  # Прямо
             elif orientation == "vertical":
-                if turn == "right":
-                    self.pov_x = 977
-                    self.pov_y = 550
-                elif turn == "left":
-                    self.pov_x = 0
-                    self.pov_y = 460
+                if turn == "left":
+                    self.pov_x, self.pov_y = 935, 500  # Точка поворота влево
+                elif turn == "right":
+                    self.pov_x, self.pov_y = 1035, 580  # Точка поворота вправо
                 else:  # forward
-                    self.pov_x = WIDTH // 2
-                    self.pov_y = HEIGHT
+                    self.pov_x, self.pov_y = WIDTH // 2, HEIGHT  # Прямо
 
-            # Создаем поверхность и маску
-            self.original_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
-            self.original_surface.fill((0, 0, 0))
-            self.mask = pygame.mask.from_surface(self.original_surface)
-            self.surface = self.original_surface
-
-            # Флаг для остановки машины
-            self.stopped = False
-
-        def pos(self):
-            return self.rect.topleft
+            # Создаем маску для машины
+            self.mask = pygame.mask.from_surface(self.image, threshold=127)
+            self.stopped = False  # Флаг остановки машины
 
         def move(self):
-            # Если машина остановлена, ничего не делаем
+            """Двигает машину в зависимости от её направления и ориентации."""
             if self.stopped:
                 return True
 
-            if self.orientation == "horizontal":  # Движение по горизонтали
+            if self.orientation == "horizontal":
                 if self.direction == 1:  # Движение вправо
-                    if self.rect.x < self.pov_x:
-                        self.rect.x += self.speed
+                    if self.x < self.pov_x:
+                        self.x += self.speed
                     else:
                         if self.turn == "up":
                             if self.angle < 90:
                                 self.angle += self.angv
-                                self.rect.y -= self.speed
+                                self.y -= self.speed
                             else:
-                                self.rect.y -= self.speed
+                                self.y -= self.speed
                         elif self.turn == "down":
                             if self.angle > -90:
                                 self.angle -= self.angv
-                                self.rect.y += self.speed
+                                self.y += self.speed
                             else:
-                                self.rect.y += self.speed
+                                self.y += self.speed
                         elif self.turn == "forward":
-                            self.rect.x += self.speed
-                elif self.direction == -1:
-                    if self.rect.x > self.pov_x:
-                        self.rect.x -= self.speed
+                            self.x += self.speed
+                elif self.direction == -1:  # Движение влево
+                    if self.x > self.pov_x:
+                        self.x -= self.speed
                     else:
                         if self.turn == "up":
                             if self.angle > -90:
                                 self.angle -= self.angv
-                                self.rect.y -= self.speed
+                                self.y -= self.speed
                             else:
-                                self.rect.y -= self.speed
+                                self.y -= self.speed
                         elif self.turn == "down":
                             if self.angle < 90:
                                 self.angle += self.angv
-                                self.rect.y += self.speed
+                                self.y += self.speed
                             else:
-                                self.rect.y += self.speed
+                                self.y += self.speed
                         elif self.turn == "forward":
-                            self.rect.x -= self.speed
+                            self.x -= self.speed
             elif self.orientation == "vertical":
-                if self.direction == 1:  # движение вниз
-                    if self.rect.y < self.pov_y:
-                        self.rect.y += self.speed
+                if self.direction == 1:  # Движение вниз
+                    if self.y < self.pov_y:
+                        self.y += self.speed
                     else:
                         if self.turn == "left":
                             if self.angle > -90:
                                 self.angle -= self.angv
-                                self.rect.x -= self.speed
+                                self.x -= self.speed
                             else:
-                                self.rect.x -= self.speed
+                                self.x -= self.speed
                         elif self.turn == "right":
                             if self.angle < 90:
                                 self.angle += self.angv
-                                self.rect.x += self.speed
+                                self.x += self.speed
                             else:
-                                self.rect.x += self.speed
+                                self.x += self.speed
                         elif self.turn == "forward":
-                            self.rect.y += self.speed
-                elif self.direction == -1:  # движение вверх
-                    if self.rect.y > self.pov_y:
-                        self.rect.y -= self.speed
+                            self.y += self.speed
+                elif self.direction == -1:  # Движение вверх
+                    if self.y > self.pov_y:
+                        self.y -= self.speed
                     else:
                         if self.turn == "left":
                             if self.angle < 90:
                                 self.angle += self.angv
-                                self.rect.x -= self.speed
+                                self.x -= self.speed
                             else:
-                                self.rect.x -= self.speed
+                                self.x -= self.speed
                         elif self.turn == "right":
                             if self.angle > -90:
                                 self.angle -= self.angv
-                                self.rect.x += self.speed
+                                self.x += self.speed
                             else:
-                                self.rect.x += self.speed
+                                self.x += self.speed
                         elif self.turn == "forward":
-                            self.rect.y -= self.speed
+                            self.y -= self.speed
 
-            if self.rect.x > WIDTH or self.rect.x < 0 or self.rect.y < 0 or self.rect.y > HEIGHT:
+            # Обновляем маску после изменения положения или поворота
+            rotated_surface = pygame.transform.rotate(self.image, self.angle)
+            self.mask = pygame.mask.from_surface(rotated_surface, threshold=127)
+
+            # Проверка на выход за границы экрана
+            if self.x > WIDTH or self.x < 0 or self.y < 0 or self.y > HEIGHT:
                 return False
             return True
 
         def draw(self, surface):
-            rotated_surface = pygame.transform.rotozoom(self.original_surface, self.angle, 1)
-            rotated_rect = rotated_surface.get_rect(center=self.rect.center)
-            surface.blit(rotated_surface, rotated_rect.topleft)
-            # Обновляем маску после поворота
-            self.mask = pygame.mask.from_surface(rotated_surface)
+            """Отрисовывает машину на экране."""
+            # Поворачиваем изображение машины
+            rotated_surface = pygame.transform.rotate(self.image, self.angle)
+            # Корректируем позицию после поворота
+            rect = rotated_surface.get_rect(center=(self.x, self.y))
+            surface.blit(rotated_surface, rect.topleft)
 
         def stop(self):
-            """Останавливает машину при вызове."""
+            """Останавливает машину."""
             self.stopped = True
 
         def go(self):
-            """Останавливает машину при вызове."""
+            """Запускает машину."""
             self.stopped = False
+
+    def is_collision(m, j):
+        """Проверяет, есть ли реальное столкновение между машинами m и j."""
+        offset = (int(j.x - m.x), int(j.y - m.y))
+        collision = m.mask.overlap(j.mask, offset) is not None
+        if collision:
+            print(f"Collision between cars at ({m.x}, {m.y}) and ({j.x}, {j.y})")
+        return collision
 
     # Основной игровой цикл
     running = True
@@ -250,13 +283,23 @@ def run(screen):
                                 sw[i] = not sw[i]
                     else:
                         if continue_rect.collidepoint(event.pos):
-                            press = not press
-                            paused = not paused
+                            continue_button_pressed = True
                         if finish_rect.collidepoint(event.pos):
-                            return ("menu", (current_time // 1000))
+                            finish_button_pressed = True
                     if pause1_rect.collidepoint(event.pos) or pause2_rect.collidepoint(event.pos):
                         press = not press
                         paused = not paused
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if continue_button_pressed:
+                    continue_button_pressed = False
+                    if continue_rect.collidepoint(event.pos):
+                        press = not press
+                        paused = not paused
+                if finish_button_pressed:
+                    finish_button_pressed = False
+                    if finish_rect.collidepoint(event.pos):
+                        return ("menu", (current_time // 1000))
+
         # Заполнение фона
         screen.fill(WHITE)
 
@@ -281,19 +324,15 @@ def run(screen):
 
                 last_spawn_time = current_time  # Обновляем время последнего спавна
 
-            # Выбор уровня сложности
-            difficulty = "hard"  # Может быть "easy", "medium" или "hard"
-
-            # Выбор уровня сложности
-            difficulty = "medium"  # Может быть "easy", "medium" или "hard"
 
             # Установка формулы в зависимости от уровня сложности
             if difficulty == "easy":
-                tspawn = max(800, 2500 * math.exp(-current_time / 80000))
+                tspawn = max(1200, 2500 * math.exp(-current_time / 80000))
             elif difficulty == "medium":
-                tspawn = max(400, 2000 * math.exp(-current_time / 40000))
+                tspawn = max(1000, 2000 * math.exp(-current_time / 40000))
             elif difficulty == "hard":
-                tspawn = max(200, 1500 * math.exp(-current_time / 20000))
+                tspawn = max(800, 1500 * math.exp(-current_time / 20000))
+
             # Рисуем дороги
             pygame.draw.rect(screen, GRAY, (0, HEIGHT / 2 - 75, WIDTH, 150))
             pygame.draw.rect(screen, GRAY, (WIDTH / 2 - 75, 0, 150, HEIGHT))
@@ -323,19 +362,50 @@ def run(screen):
                 for m in cars:
                     for j in cars:
                         if m != j:
-                            offset = (j.rect.x - m.rect.x, j.rect.y - m.rect.y)
-                            if m.mask.overlap(j.mask, offset):
-                                return ("game_over", (current_time // 1000))
-
-            if current_time > 10000:
-                screen.blit(advert1, (WIDTH / 2 + 300, 150))
-                screen.blit(advert2, (WIDTH / 2 + 300, HEIGHT - 450))
+                            # Проверяем расстояние между машинами
+                            distance = math.sqrt((m.x - j.x) ** 2 + (m.y - j.y) ** 2)
+                            if distance < 100:  # Проверяем только близкие машины
+                                if is_collision(m, j):
+                                    return ("game_over", (current_time // 1000))
 
         else:
-            pygame.draw.rect(screen, GRAY, continue_rect)
-            screen.blit(continue_text, continue_rect)
-            pygame.draw.rect(screen, GRAY, finish_rect)
-            screen.blit(finish_text, finish_rect)
+            # Получаем позицию мыши
+            mouse_pos = pygame.mouse.get_pos()
+
+            # Обработка наведения на кнопку CONTINUE
+            if continue_rect.collidepoint(mouse_pos):
+                continue_button_hovered = True
+                continue_button_color = DARK_BLUE  # Темный синий при наведении
+            else:
+                continue_button_hovered = False
+                continue_button_color = BLUE  # Обычный синий
+
+            # Обработка наведения на кнопку MENU
+            if finish_rect.collidepoint(mouse_pos):
+                finish_button_hovered = True
+                finish_button_color = DARK_GREEN  # Темный зеленый при наведении
+            else:
+                finish_button_hovered = False
+                finish_button_color = GREEN_BUTTON  # Обычный зеленый
+
+            # Рисуем кнопку CONTINUE
+            if continue_button_pressed:
+                continue_button_color = DARKER_BLUE  # Еще темнее синий при нажатии
+            pygame.draw.rect(screen, continue_button_color, continue_rect, border_radius=20)
+            continue_text_rect = continue_text.get_rect(center=continue_rect.center)
+            if continue_button_pressed:
+                continue_text_rect.move_ip(5, 5)  # Смещение текста при нажатии
+            screen.blit(continue_text, continue_text_rect)
+
+            # Рисуем кнопку MENU
+            if finish_button_pressed:
+                finish_button_color = DARKER_GREEN  # Еще темнее зеленый при нажатии
+            pygame.draw.rect(screen, finish_button_color, finish_rect, border_radius=20)
+            finish_text_rect = finish_text.get_rect(center=finish_rect.center)
+            if finish_button_pressed:
+                finish_text_rect.move_ip(5, 5)  # Смещение текста при нажатии
+            screen.blit(finish_text, finish_text_rect)
+
         # Обновляем экран
         pygame.display.flip()
         clock.tick(FPS)

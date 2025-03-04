@@ -3,6 +3,7 @@ import menu
 import game
 import game_over
 import instruction  # Импортируем модуль с инструкциями
+import difficult
 
 # Инициализация pygame
 pygame.init()
@@ -17,14 +18,16 @@ state = "menu"
 time = 0
 running = True
 
-# Основной игровой цикл
+# Основной игровой
 while running:
     if state == "menu":
-        state = menu.run(screen)  # Передаем экран и получаем новое состояние
+        state = menu.run(screen)  # Передаем экран цикли получаем новое состояние
     elif state == "game":
-        state, time = game.run(screen)  # Запускаем игровой процесс
+        state, time = game.run(screen, difficulty)  # Запускаем игровой процесс
     elif state == "game_over":
-        state = game_over.run(screen, time)  # Экран окончания игры
+        state = game_over.run(screen, time, difficulty)  # Экран окончания игры
+    elif state == "difficult":  # Новое состояние для инструкций
+        state, difficulty = difficult.run(screen)  # Запуск экрана с инструкциями
     elif state == "instruction":  # Новое состояние для инструкций
         state = instruction.run(screen)  # Запуск экрана с инструкциями
     elif state == "quit":

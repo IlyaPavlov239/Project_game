@@ -4,6 +4,8 @@ import pygame
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)  # Цвет кнопки
+DARK_BLUE = (0, 0, 200)  # Темный синий для наведения
+DARKER_BLUE = (0, 0, 150)  # Еще темнее синий для нажатия
 
 def draw_text(screen, text, x, y, font, color=BLACK):
     """Функция для отображения текста на экране."""
@@ -58,7 +60,10 @@ def run(screen):
         arrow_button_width,
         arrow_button_height
     )
-    arrow_color = BLUE  # Цвет кнопки
+
+    # Переменные для анимации кнопки
+    arrow_button_pressed = False
+    arrow_button_hovered = False
 
     # Основной цикл программы
     current_instruction = 0  # Текущая инструкция (0, 1, 2)
@@ -69,9 +74,25 @@ def run(screen):
                 return "quit"  # Завершаем игру
             if event.type == pygame.MOUSEBUTTONDOWN:  # Обработка клика мыши
                 if arrow_button_rect.collidepoint(event.pos):  # Если клик по кнопке-стрелочке
-                    current_instruction += 1  # Переход к следующей инструкции
-                    if current_instruction >= len(images):  # Если инструкции закончились
-                        return "menu"  # Возвращаемся в меню
+                    arrow_button_pressed = True
+            if event.type == pygame.MOUSEBUTTONUP:  # Обработка отпускания кнопки мыши
+                if arrow_button_pressed:
+                    arrow_button_pressed = False
+                    if arrow_button_rect.collidepoint(event.pos):  # Если отпустили на кнопке
+                        current_instruction += 1  # Переход к следующей инструкции
+                        if current_instruction >= len(images):  # Если инструкции закончились
+                            return "menu"  # Возвращаемся в меню
+
+        # Получаем позицию мыши
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Обработка наведения на кнопку "Next"
+        if arrow_button_rect.collidepoint(mouse_pos):
+            arrow_button_hovered = True
+            arrow_button_color = DARK_BLUE  # Темный синий при наведении
+        else:
+            arrow_button_hovered = False
+            arrow_button_color = BLUE  # Обычный синий
 
         # Очистка экрана
         screen.fill(WHITE)
@@ -88,11 +109,18 @@ def run(screen):
 
         # Отображение текста под изображением
         text_y = y_offset + current_image.get_height() - 60
-        draw_text(screen, current_text, x_offset-55, text_y, font)
+        draw_text(screen, current_text, x_offset - 55, text_y, font)
 
         # Отрисовка кнопки-стрелочки
-        pygame.draw.rect(screen, arrow_color, arrow_button_rect, border_radius=20)  # Рисуем кнопку
-        draw_text(screen, "Next", arrow_button_rect.x + 15, arrow_button_rect.y + 15, arrow_font, WHITE)  # Стрелка (белый цвет)
+        if arrow_button_pressed:
+            arrow_button_color = DARKER_BLUE  # Еще темнее синий при нажатии
+        pygame.draw.rect(screen, arrow_button_color, arrow_button_rect, border_radius=20)  # Рисуем кнопку
+        next_text = "Next"
+        next_text_surface = arrow_font.render(next_text, True, WHITE)
+        next_text_rect = next_text_surface.get_rect(center=arrow_button_rect.center)
+        if arrow_button_pressed:
+            next_text_rect.move_ip(5, 5)  # Смещение текста при нажатии
+        screen.blit(next_text_surface, next_text_rect)
 
         # Обновление экрана
         pygame.display.flip()

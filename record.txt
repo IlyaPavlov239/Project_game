@@ -1,1 +1,3 @@
-61
+medium: 9
+easy: 20
+hard: 13
