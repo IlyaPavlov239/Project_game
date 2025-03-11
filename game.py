@@ -75,16 +75,16 @@ def run(screen, difficulty):
                 if i != k and i.direction == k.direction and i.orientation == k.orientation:
                     # Если машина i уже повернула, она не должна блокировать другие машины
                     if i.orientation == "horizontal":
-                        if (i.direction == 1 and i.x > k.x and i.x < 884) or (i.direction == -1 and i.x < k.x and i.x > 1037):
+                        if (i.direction == 1 and i.x > k.x and i.x < 856) or (i.direction == -1 and i.x < k.x and i.x > 1063):
                             if abs(i.x - k.x) < 120:
                                 # Если машина i уже повернула, она не блокирует k
-                                if not (i.turn == "up" and i.y < 465) and not (i.turn == "down" and i.y > 615):
+                                if not (i.turn == "up" and i.y < 437) and not (i.turn == "down" and i.y > 643):
                                     k.stop()
                     elif i.orientation == "vertical":
-                        if (i.direction == 1 and i.y > k.y and i.y < 465) or (i.direction == -1 and i.y < k.y and i.y > 615):
+                        if (i.direction == 1 and i.y > k.y and i.y < 437) or (i.direction == -1 and i.y < k.y and i.y > 643):
                             if abs(i.y - k.y) < 120:
                                 # Если машина i уже повернула, она не блокирует k
-                                if not (i.turn == "left" and i.x < 935) and not (i.turn == "right" and i.x > 1035):
+                                if not (i.turn == "left" and i.x < 856) and not (i.turn == "right" and i.x > 1063):
                                     k.stop()
 
     def is_red(cars):
@@ -92,14 +92,14 @@ def run(screen, difficulty):
             j.go()
         for i in cars:
             if i.orientation == "horizontal":
-                if i.x > s[0].center[0] - 50 and i.x < s[0].center[0] and i.direction == 1 and not sw[0]:
+                if i.x > s[0].center[0] - 50 and i.x < s[0].center[0]-40 and i.direction == 1 and not sw[0]:
                     i.stop()
-                elif i.x < s[1].center[0] + 50 and i.x > s[1].center[0] and i.direction == -1 and not sw[1]:
+                elif i.x < s[1].center[0] + 50 and i.x > s[1].center[0]+40 and i.direction == -1 and not sw[1]:
                     i.stop()
             else:
-                if i.y > s[2].center[1] - 50 and i.y < s[2].center[1] and i.direction == 1 and not sw[2]:
+                if i.y > s[2].center[1] - 50 and i.y < s[2].center[1]-40 and i.direction == 1 and not sw[2]:
                     i.stop()
-                elif i.y < s[3].center[1] + 50 and i.y > s[3].center[1] and i.direction == -1 and not sw[3]:
+                elif i.y < s[3].center[1] + 50 and i.y > s[3].center[1]+40 and i.direction == -1 and not sw[3]:
                     i.stop()
 
     # Класс машины (работает с изображениями)
@@ -146,6 +146,8 @@ def run(screen, difficulty):
 
             # Создаем маску для машины
             self.mask = pygame.mask.from_surface(self.image, threshold=127)
+            rotated_surface = pygame.transform.rotozoom(self.image, self.angle, 1)
+            self.rect = rotated_surface.get_rect(center=(self.x, self.y))
             self.stopped = False  # Флаг остановки машины
 
         def move(self):
@@ -229,9 +231,9 @@ def run(screen, difficulty):
                             self.y -= self.speed
 
             # Обновляем маску после изменения положения или поворота
-            rotated_surface = pygame.transform.rotate(self.image, self.angle)
+            rotated_surface = pygame.transform.rotozoom(self.image, self.angle, 1)
             self.mask = pygame.mask.from_surface(rotated_surface, threshold=127)
-
+            self.rect = rect = rotated_surface.get_rect(center=(self.x, self.y))
             # Проверка на выход за границы экрана
             if self.x > WIDTH or self.x < 0 or self.y < 0 or self.y > HEIGHT:
                 return False
@@ -240,10 +242,9 @@ def run(screen, difficulty):
         def draw(self, surface):
             """Отрисовывает машину на экране."""
             # Поворачиваем изображение машины
-            rotated_surface = pygame.transform.rotate(self.image, self.angle)
+            rotated_surface = pygame.transform.rotozoom(self.image, self.angle, 1)
             # Корректируем позицию после поворота
-            rect = rotated_surface.get_rect(center=(self.x, self.y))
-            surface.blit(rotated_surface, rect.topleft)
+            surface.blit(rotated_surface, self.rect.topleft)
 
         def stop(self):
             """Останавливает машину."""
@@ -255,7 +256,7 @@ def run(screen, difficulty):
 
     def is_collision(m, j):
         """Проверяет, есть ли реальное столкновение между машинами m и j."""
-        offset = (int(j.x - m.x), int(j.y - m.y))
+        offset = (int(j.rect.topleft[0] - m.rect.topleft[0]), int(j.rect.topleft[1] - m.rect.topleft[1]))
         collision = m.mask.overlap(j.mask, offset) is not None
         if collision:
             print(f"Collision between cars at ({m.x}, {m.y}) and ({j.x}, {j.y})")
