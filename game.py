@@ -299,18 +299,21 @@ def run(screen, difficulty):
     running = True
     clock = pygame.time.Clock()
     last_spawn_time = pygame.time.get_ticks() - start_time
+    pause_time = 0  # Время начала паузы
 
     cars = []  # Список для хранения всех машин
 
     while running:
-        current_time = pygame.time.get_ticks() - start_time
+        if not paused:
+            current_time = pygame.time.get_ticks() - start_time - pause_time
+        else:
+            pause_time = pygame.time.get_ticks() - start_time - current_time
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Левая кнопка мыши
-                    print(event.pos)
                     if not paused:
                         for i in range(len(s)):
                             if s[i].collidepoint(event.pos):
@@ -344,7 +347,8 @@ def run(screen, difficulty):
 
         if not paused:
             # Спавн машин каждую 3 секунды
-            if current_time - last_spawn_time >= tspawn:  # Если прошло tspawn секунды
+            spawn_time = current_time - last_spawn_time
+            if spawn_time >= tspawn:  # Если прошло tspawn секунды
                 direction = random.choice([-1, 1])  # Случайное направление
                 orientation = random.choice(["horizontal", "vertical"])  # Случайная ориентация
                 if orientation == "horizontal":
@@ -358,14 +362,13 @@ def run(screen, difficulty):
 
                 last_spawn_time = current_time  # Обновляем время последнего спавна
 
-
-            # Установка формулы в зависимости от уровня сложности
-            if difficulty == "easy":
-                tspawn = max(1200, 2500 * math.exp(-current_time / 80000))
-            elif difficulty == "medium":
-                tspawn = max(1000, 2000 * math.exp(-current_time / 40000))
-            elif difficulty == "hard":
-                tspawn = max(800, 1500 * math.exp(-current_time / 20000))
+                # Установка формулы в зависимости от уровня сложности
+                if difficulty == "easy":
+                    tspawn = max(1200, 2500 * math.exp(-current_time / 80000))
+                elif difficulty == "medium":
+                    tspawn = max(1000, 2000 * math.exp(-current_time / 40000))
+                elif difficulty == "hard":
+                    tspawn = max(800, 1500 * math.exp(-current_time / 20000))
 
             # Рисуем дороги
             pygame.draw.rect(screen, GRAY, (0, HEIGHT / 2 - 75, WIDTH, 150))
