@@ -70,15 +70,12 @@ def run(screen):
             elif event.type == pygame.MOUSEBUTTONUP:
                 mouse_pos = event.pos
                 if easy_button_pressed and easy_button_rect.collidepoint(mouse_pos):
-                    print("Easy difficulty selected")
                     easy_button_pressed = False
                     return ("game", "easy")
                 elif medium_button_pressed and medium_button_rect.collidepoint(mouse_pos):
-                    print("Medium difficulty selected")
                     medium_button_pressed = False
                     return ("game", "medium")
                 elif hard_button_pressed and hard_button_rect.collidepoint(mouse_pos):
-                    print("Hard difficulty selected")
                     hard_button_pressed = False
                     return ("game", "hard")
                 easy_button_pressed = False

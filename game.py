@@ -1,8 +1,9 @@
 import pygame
 import random
 import math
+import os
 
-def run(screen, difficulty):
+def run(screen, difficulty):   
     # Инициализация Pygame
     pygame.mixer.init()
     start_time = pygame.time.get_ticks()
@@ -31,6 +32,38 @@ def run(screen, difficulty):
     pause2_rect = pause2.get_rect(topleft=(300, 130))
     press = False
 
+    def load_cari_files(directory):
+        """
+        Загружает файлы вида 'cari.*' (где i - натуральное число) из указанной директории
+        Возвращает список загруженных поверхностей (Surface)
+        """
+        images = []
+        i = 1
+        
+        while True:
+            # Формируем базовое имя файла (без расширения)
+            base_name = f"car{i}"
+            
+            # Ищем файл с таким именем и любым расширением
+            found = False
+            for file in os.listdir(directory):
+                if file.startswith(base_name):
+                    try:
+                        # Пытаемся загрузить изображение
+                        img = pygame.image.load(os.path.join(directory, file)).convert_alpha()
+                        images.append(img)
+                        found = True
+                        i += 1
+                        break
+                    except pygame.error:
+                        continue
+            
+            # Если файл не найден, прерываем цикл
+            if not found:
+                break
+        
+        return images
+
     # Кнопка CONTINUE
     continue_rect = pygame.Rect(WIDTH / 2, 250, 380, 90)  # Позиция и размер кнопки
     continue_rect.center = (WIDTH / 2, 500)
@@ -51,10 +84,10 @@ def run(screen, difficulty):
     advert2 = pygame.image.load("images/advert2.png")  # Убедись, что файл находится в той же папке
 
     # Загрузка изображений машин
-    car_horizontal_right = pygame.image.load("images/hor_right/car2.png").convert_alpha()
-    car_horizontal_left = pygame.image.load("images/hor_left/car2.png").convert_alpha()
-    car_vertical_down = pygame.image.load("images/ver_down/car2.png").convert_alpha()
-    car_vertical_up = pygame.image.load("images/ver_up/car2.png").convert_alpha()
+    car_horizontal_right = load_cari_files("images/hor_right")
+    car_horizontal_left = load_cari_files("images/hor_left")
+    car_vertical_down = load_cari_files("images/ver_down")
+    car_vertical_up = load_cari_files("images/ver_up")
 
     # Фоновая музыка
     pygame.mixer.music.load('music/OMFG - Hello.mp3')
@@ -109,17 +142,17 @@ def run(screen, difficulty):
             if orientation == "horizontal":
                 if direction == 1:
                     self.x, self.y = 0, HEIGHT - 500  # Начальная позиция для горизонтальных машин
-                    self.image = car_horizontal_right  # Используем изображение для движения вправо
+                    self.image = car_horizontal_right[random.randrange(0, len(car_horizontal_right)-1, 1)]  # Используем изображение для движения вправо
                 else:
                     self.x, self.y = WIDTH, 495
-                    self.image = car_horizontal_left  # Используем изображение для движения влево
+                    self.image = car_horizontal_left[random.randrange(0, len(car_horizontal_right)-1, 1)]  # Используем изображение для движения влево
             else:
                 if direction == 1:
                     self.x, self.y = 915, 0  # Начальная позиция для вертикальных машин
-                    self.image = car_vertical_down  # Используем изображение для движения вниз
+                    self.image = car_vertical_down[random.randrange(0, len(car_horizontal_right)-1, 1)]  # Используем изображение для движения вниз
                 else:
                     self.x, self.y = WIDTH - 920, HEIGHT
-                    self.image = car_vertical_up  # Используем изображение для движения вверх
+                    self.image = car_vertical_up[random.randrange(0, len(car_horizontal_right)-1, 1)]  # Используем изображение для движения вверх
 
             self.direction = direction  # Направление движения (1 - вправо, -1 - влево / вверх, вниз)
             self.turn = turn  # Поворот (например, "up", "down", "forward")
