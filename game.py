@@ -142,17 +142,17 @@ def run(screen, difficulty):
             if orientation == "horizontal":
                 if direction == 1:
                     self.x, self.y = 0, HEIGHT - 500  # Начальная позиция для горизонтальных машин
-                    self.image = car_horizontal_right[random.randrange(0, len(car_horizontal_right)-1, 1)]  # Используем изображение для движения вправо
+                    self.image = car_horizontal_right[random.randrange(0, len(car_horizontal_right), 1)]  # Используем изображение для движения вправо
                 else:
                     self.x, self.y = WIDTH, 495
-                    self.image = car_horizontal_left[random.randrange(0, len(car_horizontal_right)-1, 1)]  # Используем изображение для движения влево
+                    self.image = car_horizontal_left[random.randrange(0, len(car_horizontal_right), 1)]  # Используем изображение для движения влево
             else:
                 if direction == 1:
                     self.x, self.y = 915, 0  # Начальная позиция для вертикальных машин
-                    self.image = car_vertical_down[random.randrange(0, len(car_horizontal_right)-1, 1)]  # Используем изображение для движения вниз
+                    self.image = car_vertical_down[random.randrange(0, len(car_horizontal_right), 1)]  # Используем изображение для движения вниз
                 else:
                     self.x, self.y = WIDTH - 920, HEIGHT
-                    self.image = car_vertical_up[random.randrange(0, len(car_horizontal_right)-1, 1)]  # Используем изображение для движения вверх
+                    self.image = car_vertical_up[random.randrange(0, len(car_horizontal_right), 1)]  # Используем изображение для движения вверх
 
             self.direction = direction  # Направление движения (1 - вправо, -1 - влево / вверх, вниз)
             self.turn = turn  # Поворот (например, "up", "down", "forward")
