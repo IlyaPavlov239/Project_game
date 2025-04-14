@@ -80,9 +80,6 @@ def run(screen, difficulty):
     continue_button_hovered = False
     finish_button_hovered = False
 
-    advert1 = pygame.image.load("images/advert1.png")  # Убедись, что файл находится в той же папке
-    advert2 = pygame.image.load("images/advert2.png")  # Убедись, что файл находится в той же папке
-
     # Загрузка изображений машин
     car_horizontal_right = load_cari_files("images/hor_right")
     car_horizontal_left = load_cari_files("images/hor_left")
@@ -291,8 +288,6 @@ def run(screen, difficulty):
         """Проверяет, есть ли реальное столкновение между машинами m и j."""
         offset = (int(j.rect.topleft[0] - m.rect.topleft[0]), int(j.rect.topleft[1] - m.rect.topleft[1]))
         collision = m.mask.overlap(j.mask, offset) is not None
-        if collision:
-            print(f"Collision between cars at ({m.x}, {m.y}) and ({j.x}, {j.y})")
         return collision
 
     # Основной игровой цикл
