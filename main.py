@@ -11,7 +11,7 @@ pygame.init()
 # Настройки
 WIDTH, HEIGHT = 1920, 1080
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Игра с меню")
+pygame.display.set_caption("Pointsman")
 
 # Переменная для хранения текущего состояния
 state = "menu"
