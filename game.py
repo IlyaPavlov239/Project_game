@@ -5,7 +5,6 @@ import os
 
 def run(screen, difficulty):   
     # Инициализация Pygame
-    pygame.mixer.init()
     start_time = pygame.time.get_ticks()
     tspawn = 0
     font = pygame.font.Font("KellySlab-Regular.ttf", 80)
@@ -85,10 +84,6 @@ def run(screen, difficulty):
     car_horizontal_left = load_cari_files("images/hor_left")
     car_vertical_down = load_cari_files("images/ver_down")
     car_vertical_up = load_cari_files("images/ver_up")
-
-    # Фоновая музыка
-    pygame.mixer.music.load('music/OMFG - Hello.mp3')
-    pygame.mixer.music.play(-1)
 
     # Состояния светофоров
     sw = [True, True, True, True]
@@ -441,6 +436,3 @@ def run(screen, difficulty):
         # Обновляем экран
         pygame.display.flip()
         clock.tick(FPS)
-
-    # Завершение Pygame
-    pygame.mixer.quit()

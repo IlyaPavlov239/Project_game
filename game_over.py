@@ -54,10 +54,6 @@ def run(screen, time, difficulty):
     menu_button_rect.center = (WIDTH/2, HEIGHT // 2 + 150)  # Подняты выше на 50 пикселей
     retry_button_rect.center = (WIDTH/2, HEIGHT // 2 + 300)  # Подняты выше на 50 пикселей
 
-    # Загрузка и проигрывание музыки
-    pygame.mixer.music.load("music/game_over.mp3")  # Укажи путь к файлу музыки
-    pygame.mixer.music.play(-1)  # -1 для зацикливания
-
     # Переменные для анимации кнопок
     menu_button_pressed = False
     retry_button_pressed = False
