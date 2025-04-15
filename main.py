@@ -2,7 +2,7 @@ import pygame
 import menu
 import game
 import game_over
-import instruction  # Импортируем модуль с инструкциями
+import instruction
 import difficult
 
 # Инициализация pygame
